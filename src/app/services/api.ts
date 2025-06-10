@@ -41,8 +41,9 @@ export interface Member {
   _id: string; // ← Mongo devuelve _id
   nombre: string;
   apellidos: string;
-  nombreUSer: string;
+  nombreUser: string;
   email: string;
+  password?: string; // Solo al crear o actualizar
  }
 export interface LoginPayload {
   email: string;
