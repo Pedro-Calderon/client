@@ -1,6 +1,12 @@
 "use client";
 import RegisterPage from "./RegisterPage";
-
+import { ErrorProvider } from "@/app/Context/ErrorContext";
 export default function RegisterRoute() {
-  return  <RegisterPage />;
+  return (
+    <ErrorProvider>
+
+      <RegisterPage />
+      </ErrorProvider >
+
+      )
 }

@@ -1,157 +1,224 @@
-"use client"
-
-import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+"use client";
+import {  useState } from "react";
+import type React from "react";
 import {
-  Container,
-  Paper,
   Box,
-  Typography,
-  TextField,
   Button,
-  Link,
-  Alert,
+  Container,
+  Divider,
+  TextField,
+  Typography,
+  Paper,
+  Stack,
   InputAdornment,
   IconButton,
-  Divider,
-  Stack,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material"
-import { Person, Email, Lock, Visibility, VisibilityOff, VideoLibrary, Google, Facebook } from "@mui/icons-material"
-
-interface RegisterForm {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  confirmPassword: string
-  acceptTerms: boolean
-}
-
-interface FormErrors {
-  firstName?: string
-  lastName?: string
-  email?: string
-  password?: string
-  confirmPassword?: string
-  acceptTerms?: string
-  general?: string
-}
+  Alert,
+} from "@mui/material";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Person from "@mui/icons-material/Person";
+import { useRouter } from "next/navigation";
+//import { addMember } from "../../services/api";
+import { useError } from "@/app/Context/ErrorContext";
+import { addMember } from "../services/api";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const [formData, setFormData] = useState<RegisterForm>({
+  const router = useRouter();
+  const { setFormError, formError } = useError();
+  const [submittrue, setSubmitTrue] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0)
+
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    acceptTerms: false,
-  })
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
+    nombreUser: "",
+  });
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
+  const handleTogglePassword = () => setShowPassword((prev) => !prev);
+  const PasswordStrengthBar = ({ strength }: { strength: number }) => {
+    let color = "#f44336"; // Rojo
+    let label = "Débil";
 
-    // Validación de nombre
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "El nombre es requerido"
-    } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = "El nombre debe tener al menos 2 caracteres"
+    if (strength >= 80) {
+      color = "#4caf50"; // Verde
+      label = "Fuerte";
+    } else if (strength >= 40) {
+      color = "#ff9800"; // Naranja
+      label = "Media";
     }
 
-    // Validación de apellido
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "El apellido es requerido"
-    } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = "El apellido debe tener al menos 2 caracteres"
+    return (
+      <Box sx={{ width: "100%", mt: 1, mb: 2 }}>
+        <Box
+          sx={{
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: "#e0e0e0",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            sx={{
+              height: "100%",
+              width: `${strength}%`,
+              backgroundColor: color,
+              transition: "width 0.3s ease",
+            }}
+          />
+        </Box>
+        <Typography
+          variant="caption"
+          sx={{
+            mt: 0.5,
+            color,
+            fontWeight: "bold",
+            textAlign: "left",
+            display: "block",
+          }}
+        >
+          {label}
+        </Typography>
+      </Box>
+    );
+  };
+
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    //ER para el nombre y apellido
+    const regex = /^[A-Za-zÁÉÍÓÚÑáéíóúñ\s]*$/;
+    if (name === "firstName" || name === "lastName") {
+      const isValid = regex.test(value);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: isValid ? "" : "Solo se permiten letras y espacios.",
+      }));
+      if (isValid) {
+        setFormData((prev) => ({ ...prev, [name]: value }))
+      }
     }
 
-    // Validación de email
-    if (!formData.email) {
-      newErrors.email = "El email es requerido"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "El formato del email no es válido"
+    //ER para el nombre de usuario
+    if (name === "nombreUser") {
+    //  console.log("Validando nombreuser:", value);
+
+      const isValid = /^[A-Za-z0-9_]*$/.test(value);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: isValid ? "" : "Solo se permiten letras, números y guiones bajos.",
+      }));
+      if (isValid) {
+        setFormData((prev) => ({ ...prev, [name]: value }))
+      }
     }
 
-    // Validación de contraseña
-    if (!formData.password) {
-      newErrors.password = "La contraseña es requerida"
-    } else if (formData.password.length < 8) {
-      newErrors.password = "La contraseña debe tener al menos 8 caracteres"
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = "La contraseña debe contener al menos una mayúscula, una minúscula y un número"
+    //ER para el email
+
+    if (name === "email") {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]*$/.test(value);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: isValid ? "" : "Correo inválido",
+      }));
     }
 
-    // Validación de confirmación de contraseña
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Confirma tu contraseña"
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Las contraseñas no coinciden"
+    //Password vaalidation
+    if (name === "password") {
+      let strength = 0
+
+      if (value.length >= 8) strength += 20
+      if (/[A-Z]/.test(value)) strength += 20
+      if (/[a-z]/.test(value)) strength += 20
+      if (/\d/.test(value)) strength += 20
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(value)) strength += 20
+
+      setPasswordStrength(strength)
+
+
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.nombreUser.trim() ||
+      !formData.email.trim() ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      <Alert variant="outlined" severity="warning">
+        Todos los campos son obligatorios.
+      </Alert>
+      return;
     }
 
-    // Validación de términos
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = "Debes aceptar los términos y condiciones"
+    if (!emailRegex.test(formData.email)) {
+      alert("Correo electrónico no válido.");
+      return;
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
 
-  const handleInputChange = (field: keyof RegisterForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = field === "acceptTerms" ? event.target.checked : event.target.value
-    setFormData({
-      ...formData,
-      [field]: value,
-    })
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[field]) {
-      setErrors({
-        ...errors,
-        [field]: undefined,
-      })
-    }
-  }
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-
-    if (!validateForm()) {
-      return
+    if (formData.password !== formData.confirmPassword) {
+      alert("Las contraseñas no coinciden.");
+      return;
     }
 
-    setIsLoading(true)
-    setErrors({})
 
     try {
-      // Simular llamada a API
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const memberData = {
+        _id: "",
+        nombre: formData.firstName,
+        nombreUser: formData.nombreUser,
+        apellidos: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      };
+       await addMember(memberData);
+      // alert("Registro exitoso" + response.data);
+     // console.log("Registro exitoso:", response.data);
+      setSubmitTrue(true);
+      router.push("/login");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any  
+    } catch (err: any) {
+      const message = err?.response?.data?.message;
+      console.error("Error en el registro:", message);
 
-      // Simular registro exitoso
-      setSuccessMessage("¡Cuenta creada exitosamente! Redirigiendo al login...")
-      setTimeout(() => {
-        router.push("/login")
-      }, 1500)
-    } catch  {
-      setErrors({
-        general: "Error al crear la cuenta. Por favor, intenta nuevamente.",
-      })
-    } finally {
-      setIsLoading(false)
+      if (err?.response?.status === 410 && message) {
+        // veralert();
+        // alert("⚠️ " + message);
+        setFormError({ field: "email", message: message });
+
+      }
+      if (err?.response?.status === 412 && message) {
+        // veralert();
+        // alert("⚠️ " + message);
+        setFormError({ field: "nombreUser", message: message });
+
+      }
+
     }
-  }
-
-  const handleSocialRegister = (provider: string) => {
-    console.log(`Registrarse con ${provider}`)
-    // Aquí implementarías el registro social
-  }
+  };
 
   return (
     <Box
@@ -174,10 +241,8 @@ export default function RegisterPage() {
             backdropFilter: "blur(10px)",
           }}
         >
-          {/* Header */}
           <Box sx={{ textAlign: "center", mb: 4 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
-              <VideoLibrary sx={{ fontSize: 40, color: "primary.main", mr: 1 }} />
               <Typography variant="h4" sx={{ fontWeight: "bold", color: "primary.main" }}>
                 InnovaTube
               </Typography>
@@ -187,31 +252,35 @@ export default function RegisterPage() {
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Únete a la comunidad de InnovaTube
+
             </Typography>
           </Box>
-
-          {/* Mensajes de estado */}
-          {errors.general && (
+          {formError?.message && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {errors.general}
+              {formError.message}
             </Alert>
           )}
-          {successMessage && (
+          {submittrue && (
             <Alert severity="success" sx={{ mb: 3 }}>
-              {successMessage}
+              Registro exitoso. Ahora puedes iniciar sesión.
             </Alert>
           )}
 
-          {/* Formulario */}
+          {/* Formulario de registro */}
+
           <Box component="form" onSubmit={handleSubmit}>
             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
               <TextField
                 fullWidth
                 label="Nombre"
-                value={formData.firstName}
-                onChange={handleInputChange("firstName")}
+                name="firstName"
+                variant="outlined"
+                required
+                inputProps={{ maxLength: 20 }}
                 error={!!errors.firstName}
                 helperText={errors.firstName}
+                value={formData.firstName}
+                onChange={handleChange}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -220,165 +289,152 @@ export default function RegisterPage() {
                   ),
                 }}
               />
+
               <TextField
                 fullWidth
                 label="Apellido"
-                value={formData.lastName}
-                onChange={handleInputChange("lastName")}
+                name="lastName"
+                variant="outlined"
+                margin="normal"
+                required
+                inputProps={{ maxLength: 40 }}
                 error={!!errors.lastName}
                 helperText={errors.lastName}
+                value={formData.lastName}
+                onChange={handleChange}
               />
+
             </Stack>
 
             <TextField
               fullWidth
-              label="Correo Electrónico"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange("email")}
-              error={!!errors.email}
-              helperText={errors.email}
+              label="Nombren de Usuario"
+              name="nombreUser"
+              required
+              inputProps={{ maxLength: 20 }}
+              error={!!errors.nombreUser}
+              helperText={errors.nombreUser}
+              value={formData.nombreUser}
+              onChange={handleChange}
               sx={{ mb: 3 }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Email color="action" />
+                    <Person color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Correo Electrónico"
+              name="email"
+              type="email"
+              required
+              inputProps={{ maxLength: 320 }}
+
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="tu@email.com"
+              sx={{ mb: 3 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon color="action" />
                   </InputAdornment>
                 ),
               }}
             />
 
+
             <TextField
               fullWidth
               label="Contraseña"
+              name="password"
               type={showPassword ? "text" : "password"}
               value={formData.password}
-              onChange={handleInputChange("password")}
-              error={!!errors.password}
+              required
+              inputProps={{ maxLength: 100 }}
+              error={!!errors.password} // muestra borde rojo si hay error
               helperText={errors.password}
+              onChange={handleChange}
               sx={{ mb: 3 }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock color="action" />
+                    <LockIcon color="action" />
                   </InputAdornment>
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    <IconButton onClick={handleTogglePassword} edge="end">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
             />
+            {formData.password && <PasswordStrengthBar strength={passwordStrength} />}
 
             <TextField
               fullWidth
               label="Confirmar Contraseña"
-              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              type={showPassword ? "text" : "password"}
               value={formData.confirmPassword}
-              onChange={handleInputChange("confirmPassword")}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword}
+              onChange={handleChange}
+              inputProps={{ maxLength: 100 }}
+              error={
+                formData.confirmPassword !== "" &&
+                formData.password !== formData.confirmPassword
+              }
+              helperText={
+                formData.confirmPassword !== "" &&
+                  formData.password !== formData.confirmPassword
+                  ? "Las contraseñas no coinciden"
+                  : ""
+              }
               sx={{ mb: 3 }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock color="action" />
+                    <LockIcon color="action" />
                   </InputAdornment>
                 ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+
               }}
             />
 
-            <FormControlLabel
-              control={
-                <Checkbox checked={formData.acceptTerms} onChange={handleInputChange("acceptTerms")} color="primary" />
-              }
-              label={
-                <Typography variant="body2">
-                  Acepto los{" "}
-                  <Link href="#" sx={{ textDecoration: "none" }}>
-                    términos y condiciones
-                  </Link>{" "}
-                  y la{" "}
-                  <Link href="#" sx={{ textDecoration: "none" }}>
-                    política de privacidad
-                  </Link>
-                </Typography>
-              }
-              sx={{ mb: 2 }}
-            />
-            {errors.acceptTerms && (
-              <Typography variant="caption" color="error" sx={{ display: "block", mb: 2 }}>
-                {errors.acceptTerms}
-              </Typography>
-            )}
+
 
             <Button
               type="submit"
               fullWidth
               variant="contained"
               size="large"
-              disabled={isLoading}
               sx={{ mb: 3, py: 1.5, fontSize: "1.1rem" }}
             >
-              {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+              Crear Cuenta
             </Button>
-          </Box>
 
-          {/* Divider */}
-          <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              O regístrate con
-            </Typography>
-          </Divider>
+            <Divider sx={{ my: 3 }}></Divider>
 
-          {/* Botones de redes sociales */}
-          <Stack spacing={2} sx={{ mb: 3 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<Google />}
-              onClick={() => handleSocialRegister("Google")}
-              sx={{ py: 1.5 }}
-            >
-              Continuar con Google
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<Facebook />}
-              onClick={() => handleSocialRegister("Facebook")}
-              sx={{ py: 1.5 }}
-            >
-              Continuar con Facebook
-            </Button>
-          </Stack>
 
-          {/* Enlaces */}
-          <Box sx={{ textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              ¿Ya tienes una cuenta?{" "}
-              <Link href="/login" sx={{ fontWeight: 600, textDecoration: "none" }}>
-                Inicia sesión aquí
-              </Link>
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 2 }}>
-              <Link href="/" sx={{ color: "primary.main", textDecoration: "none" }}>
-                ← Volver al inicio
-              </Link>
-            </Typography>
+
+            <Box sx={{ textAlign: "center", mt: 3 }}>
+              <Typography variant="body2" color="text.secondary">
+                ¿Ya tienes una cuenta? <Typography
+                  component="span"
+                  sx={{ fontWeight: 600, cursor: "pointer", color: "primary.main", textDecoration: "underline" }}
+                  onClick={() => router.push("/login")}
+                >
+                  Inicia sesión aquí
+                </Typography>
+              </Typography>
+            </Box>
           </Box>
         </Paper>
       </Container>
     </Box>
-  )
+  );
 }

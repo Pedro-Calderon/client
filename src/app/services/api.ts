@@ -18,7 +18,7 @@ export const getMemberById = async (id: string) => {
 
 export const addMember = async (
   payload: Omit<Member, "id" > & { password: string }
-) => api.post<Member>("/members", payload);
+) => api.post<Member>("/members/register", payload);
 
  
 export const resetPassword = async (payload: {
