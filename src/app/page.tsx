@@ -1,27 +1,24 @@
 'use client';
-import Footer from "./components/global/footer";
-import { Box, Container, Button, TextField, Typography, Paper, InputAdornment } from "@mui/material"
+ import { Box, Container, Button, TextField, Typography, Paper, InputAdornment } from "@mui/material"
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward"
 import Link from "next/link";
 import {
   Search,
 } from "@mui/icons-material"
 import { useState } from "react";
-
-
+ 
 export default function Home() {
-    const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
 
-    const handleSearch = (event: React.FormEvent) => {
+  const handleSearch = (event: React.FormEvent) => {
     event.preventDefault()
     // Aquí implementarías la búsqueda real con la API de YouTube
     console.log("Buscando:", searchQuery)
   }
   return (
 
-    <>
       <Box>
-        <Box
+         <Box
           sx={{
             bgcolor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -76,36 +73,38 @@ export default function Home() {
             </Typography>
           </Container>
 
+          <Container maxWidth="md"  sx={{ mt: 3, alignItems: "center", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Button
+                component={Link}
+                href="/login"
+                variant="contained"
+                color="primary"
+                size="large"
+                endIcon={<ArrowForwardIcon />}
+                sx={{ py: 1.5, px: 4, fontWeight: 600 }}
+              >
+                COMENZAR AHORA
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                sx={{ py: 1.5, px: 4, borderColor: "white", color: "white" }}
+                component={Link}
+                href="/conocer" // Link to the static HTML page
+              >
+                CONOCER MÁS
+              </Button>
 
+            </Box>
+          </Container>
 
+                  
 
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <Button
-              component={Link}
-              href="/Login"
-              variant="contained"
-              color="primary"
-              size="large"
-              endIcon={<ArrowForwardIcon />}
-              sx={{ py: 1.5, px: 4, fontWeight: 600 }}
-            >
-              COMENZAR AHORA
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              sx={{ py: 1.5, px: 4, borderColor: "white", color: "white" }}
-              component={Link}
-              href="/programs"
-            >
-              CONOCER MÁS
-            </Button>
-
-          </Box>
         </Box>
 
-        <Footer />
       </Box>
-    </>
+   
   )
 }
+ 
