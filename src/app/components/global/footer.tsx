@@ -17,7 +17,7 @@ export default function Footer() {
             <Grid >
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <VideoLibraryIcon sx={{ mr: 1, color: "primary.main" }} />
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "black" }}>
                   InnovaTube
                 </Typography>
               </Box>
@@ -27,7 +27,7 @@ export default function Footer() {
               </Typography>
             </Grid>
             <Grid >
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "black" }}>
                 Funcionalidades
               </Typography>
               <Stack spacing={1}>
@@ -46,18 +46,16 @@ export default function Footer() {
               </Stack>
             </Grid>
             <Grid >
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "black" }}>
                 Contacto
               </Typography>
               <Stack spacing={1}>
+                
                 <Typography variant="body2" color="text.secondary">
-                  Email: info@innovatube.com
+                  Soporte: soporteinnovatube@gmail.com
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Soporte: soporte@innovatube.com
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  © 2024 InnovaTube. Todos los derechos reservados.
+                  © 2025 InnovaTube. Todos los derechos reservados.
                 </Typography>
               </Stack>
             </Grid>
