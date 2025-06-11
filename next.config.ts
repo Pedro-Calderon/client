@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+reactStrictMode: true,
+  env: {
+    SHOW_DEV_TOOLS: process.env.NODE_ENV === "development" ? "true" : "false",
+  },
 };
 
 export default nextConfig;
