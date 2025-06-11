@@ -234,6 +234,7 @@ export default function Home() {
                   borderRadius: '8px',
                   overflow: 'hidden',
                   cursor: 'pointer',
+                  mt: 5,
                   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                   '&:hover': {
                     transform: 'translateY(-8px)',
