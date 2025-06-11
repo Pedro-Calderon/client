@@ -5,7 +5,7 @@ import Navbar from "./global/Navbar";
 import Footer from "./global/footer";
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-const hideLayout = ["/login", "/register", "/forgot-password", "/reset-password"].includes(pathname);
+const hideLayout = ["/login", "/register", "/forgot-password", "/reset-password", "/unauthorized"].includes(pathname);
 
   return (
     <>
