@@ -17,12 +17,14 @@ import { Email } from "@mui/icons-material"
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward"
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace"
 import { sendPasswordResetEmail } from "../services/api"
+import { useSession } from "next-auth/react"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isValidEmail, setIsValidEmail] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { status } = useSession(); 
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
@@ -46,16 +48,16 @@ export default function ForgotPasswordPage() {
       } else {
         alert(response.data.message || "No se pudo enviar el correo.")
       }
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.response) {
         setError(error.response.data.message || "Error al enviar el correo.")
       }
     }
   }
- if (status === "loading") {
-        return <div>Cargando...</div>;
-    }
+  if (status === "loading") {
+    return <div>Cargando...</div>;
+  }
   return (
     <Box
       sx={{
