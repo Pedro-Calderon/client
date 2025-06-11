@@ -25,7 +25,7 @@ export default function Navbar() {
      const { data: session, status } = useSession();
     const open = Boolean(anchorEl);
 
-    if (status === "loading") return null;  
+    if (status === "loading") return null; 
     const user = session?.user;
 
   
@@ -37,6 +37,7 @@ export default function Navbar() {
 
     const handleProfileClose = () => {
         setAnchorEl(null);
+        
     };
 
     const handleLogout = () => {
@@ -87,7 +88,7 @@ export default function Navbar() {
                                     fontWeight: 600,
                                 }}
                             >
-                                {user?.name?.charAt(0)?.toUpperCase()}
+                                {user?.nombreUser?.charAt(0)?.toUpperCase()}
                             </Avatar>
                         </IconButton>
                         <Menu
@@ -119,7 +120,7 @@ export default function Navbar() {
 
                             <Box sx={{ px: 2, py: 1, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
                                 <Typography variant="subtitle2" fontWeight={700} sx={{ color: "#FFEB3B" }}>
-                                    {user?.name}
+                                    {user?.nombreUser}
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: "#ccc" }}>
                                     {user?.email}

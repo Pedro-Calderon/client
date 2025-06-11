@@ -15,7 +15,7 @@ const handler = NextAuth({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              identifier: credentials?.identifier,  
+              identifier: credentials?.identifier,
               password: credentials?.password,
             }),
 
@@ -32,6 +32,7 @@ const handler = NextAuth({
             name: data.user.nombre,
             email: data.user.email,
             role: data.user.rol,
+            nombreUser: data.user.nombreUser,
           };
         } catch (err) {
           throw new Error(err.message || "Error en el servidor");
@@ -51,12 +52,15 @@ const handler = NextAuth({
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.nombreUser = user.nombreUser;
       }
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id;
       session.user.role = token.role;
+      session.user.nombreUser = token.nombreUser;
+
       return session;
     },
   },
