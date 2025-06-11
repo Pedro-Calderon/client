@@ -1,8 +1,6 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import {
   Container,
   Paper,
@@ -11,109 +9,79 @@ import {
   TextField,
   Button,
   Link,
-  Alert,
   InputAdornment,
   IconButton,
   Divider,
   Stack,
+  Alert,
 } from "@mui/material"
-import { Email, Lock, Visibility, VisibilityOff, VideoLibrary, Google, Facebook } from "@mui/icons-material"
+import { Email, Lock, Visibility, VisibilityOff, VideoLibrary, Google } from "@mui/icons-material"
+import { useState } from "react"
 
-interface LoginForm {
-  email: string
-  password: string
-}
+import { signIn } from "next-auth/react"
 
-interface FormErrors {
-  email?: string
-  password?: string
-  general?: string
-}
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [formData, setFormData] = useState<LoginForm>({
-    email: "",
-    password: "",
-  })
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
+  const [password, setPassword] = useState("")
+  const [identifier, setIdentifier] = useState("");
+  const [submittrue, setSubmitTrue] = useState(false);
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
-    // Validación de email
-    if (!formData.email) {
-      newErrors.email = "El email es requerido"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "El formato del email no es válido"
-    }
-
-    // Validación de contraseña
-    if (!formData.password) {
-      newErrors.password = "La contraseña es requerida"
-    } else if (formData.password.length < 6) {
-      newErrors.password = "La contraseña debe tener al menos 6 caracteres"
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleInputChange = (field: keyof LoginForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [field]: event.target.value,
-    })
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[field]) {
-      setErrors({
-        ...errors,
-        [field]: undefined,
-      })
-    }
-  }
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    setError(null);
 
-    if (!validateForm()) {
-      return
+
+
+    if (!identifier || !password) {
+      setError("Por favor, completa ambos campos.");
+      return;
     }
 
-    setIsLoading(true)
-    setErrors({})
+
 
     try {
-      // Simular llamada a API
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const res = await signIn("credentials", {
+        identifier,   // puede ser email o nombreUser
+        password,
+        redirect: false,
+        callbackUrl: "/",
+      });
 
-      // Simular diferentes respuestas
-      if (formData.email === "demo@innovatube.com" && formData.password === "demo123") {
-        setSuccessMessage("¡Inicio de sesión exitoso! Redirigiendo...")
-        setTimeout(() => {
-          router.push("/")
-        }, 1000)
-      } else {
-        setErrors({
-          general: "Credenciales incorrectas. Intenta con demo@innovatube.com / demo123",
-        })
+      if (res?.ok) {
+        router.push("/");
+        router.refresh();
+        setSubmitTrue(true);
+        return;
+
       }
-    } catch {
-      setErrors({
-        general: "Error al iniciar sesión. Por favor, intenta nuevamente.",
-      })
-    } finally {
-      setIsLoading(false)
+
+      if (res?.error) {
+        const lowerErr = res.error.toLowerCase();
+
+        if (lowerErr.includes("demasiados intentos")) {
+          setError("Demasiados intentos fallidos. Intenta de nuevo en 15 minutos.");
+        } else if (res.error === "CredentialsSignin") {
+          setError("Correo o contraseña incorrectos.");
+        } else {
+          setError(res.error);
+        }
+      }
+
+    } catch (err) {
+      console.error("🔥 EXCEPCIÓN CRÍTICA:", err);
+      setError("Error interno. Intenta más tarde.");
     }
   }
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Iniciar sesión con ${provider}`)
-    // Aquí implementarías la autenticación social
-  }
 
   return (
     <Box
@@ -152,29 +120,30 @@ export default function LoginPage() {
             </Typography>
           </Box>
 
-          {/* Mensajes de estado */}
-          {errors.general && (
+          {/* Error message */}
+          {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {errors.general}
-            </Alert>
-          )}
-          {successMessage && (
-            <Alert severity="success" sx={{ mb: 3 }}>
-              {successMessage}
+              {error}
             </Alert>
           )}
 
+          {submittrue && (
+            <Alert severity="success" sx={{ mb: 3 }}>
+              Inicio de sesión exitoso. Redirigiendo...
+            </Alert>
+          )}
           {/* Formulario */}
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Correo Electrónico"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange("email")}
-              error={!!errors.email}
-              helperText={errors.email}
+              label="Correo Electrónico o Usuario"
+              required
+              value={identifier}
+              onChange={(email) => setIdentifier(email.target.value)}
+              placeholder="tu@email.com o Usuairio"
               sx={{ mb: 3 }}
+              inputProps={{ maxLength: 320 }}
+
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -188,10 +157,10 @@ export default function LoginPage() {
               fullWidth
               label="Contraseña"
               type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={handleInputChange("password")}
-              error={!!errors.password}
-              helperText={errors.password}
+              value={password}
+              required
+              onChange={(e) => setPassword(e.target.value)}
+              inputProps={{ maxLength: 100 }}
               sx={{ mb: 3 }}
               InputProps={{
                 startAdornment: (
@@ -201,7 +170,7 @@ export default function LoginPage() {
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    <IconButton onClick={handleTogglePassword} edge="end">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -214,10 +183,9 @@ export default function LoginPage() {
               fullWidth
               variant="contained"
               size="large"
-              disabled={isLoading}
               sx={{ mb: 3, py: 1.5, fontSize: "1.1rem" }}
             >
-              {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
+              Iniciar Sesión
             </Button>
           </Box>
 
@@ -234,20 +202,12 @@ export default function LoginPage() {
               fullWidth
               variant="outlined"
               startIcon={<Google />}
-              onClick={() => handleSocialLogin("Google")}
+
               sx={{ py: 1.5 }}
             >
               Continuar con Google
             </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<Facebook />}
-              onClick={() => handleSocialLogin("Facebook")}
-              sx={{ py: 1.5 }}
-            >
-              Continuar con Facebook
-            </Button>
+
           </Stack>
 
           {/* Enlaces */}
@@ -268,16 +228,7 @@ export default function LoginPage() {
             </Typography>
           </Box>
 
-          {/* Demo credentials */}
-          <Box sx={{ mt: 3, p: 2, bgcolor: "grey.50", borderRadius: 2 }}>
-            <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center" }}>
-              <strong>Credenciales de prueba:</strong>
-              <br />
-              Email: demo@innovatube.com
-              <br />
-              Contraseña: demo123
-            </Typography>
-          </Box>
+
         </Paper>
       </Container>
     </Box>

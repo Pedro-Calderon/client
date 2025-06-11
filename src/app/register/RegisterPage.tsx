@@ -1,5 +1,5 @@
 "use client";
-import {  useState } from "react";
+import { useState } from "react";
 import type React from "react";
 import {
   Box,
@@ -19,6 +19,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Person from "@mui/icons-material/Person";
+import VideoLibrary from "@mui/icons-material/VideoLibrary";
 import { useRouter } from "next/navigation";
 //import { addMember } from "../../services/api";
 import { useError } from "@/app/Context/ErrorContext";
@@ -110,7 +111,7 @@ export default function RegisterPage() {
 
     //ER para el nombre de usuario
     if (name === "nombreUser") {
-    //  console.log("Validando nombreuser:", value);
+      //  console.log("Validando nombreuser:", value);
 
       const isValid = /^[A-Za-z0-9_]*$/.test(value);
       setErrors((prev) => ({
@@ -194,9 +195,9 @@ export default function RegisterPage() {
         email: formData.email,
         password: formData.password,
       };
-       await addMember(memberData);
+      await addMember(memberData);
       // alert("Registro exitoso" + response.data);
-     // console.log("Registro exitoso:", response.data);
+      // console.log("Registro exitoso:", response.data);
       setSubmitTrue(true);
       router.push("/login");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any  
@@ -243,6 +244,8 @@ export default function RegisterPage() {
         >
           <Box sx={{ textAlign: "center", mb: 4 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
+              <VideoLibrary sx={{ fontSize: 40, color: "primary.main", mr: 1 }} />
+
               <Typography variant="h4" sx={{ fontWeight: "bold", color: "primary.main" }}>
                 InnovaTube
               </Typography>
