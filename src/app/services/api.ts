@@ -16,11 +16,20 @@ export const getMemberById = async (id: string) => {
   return data;
 };
 
-export const addMember = async (
-  payload: Omit<Member, "id" > & { password: string }
+/* export const addMember = async (
+  payload: Omit<Member, "id" > & { password: string },
 ) => api.post<Member>("/members/register", payload);
+ */
+ export const addMember = async (
+  payload: Omit<Member, "_id"> & { password: string },
+  captchaToken: string
+) => {
+  return api.post<Member>("/members/register", {
+    ...payload,
+    captchaToken,
+  });
+};
 
- 
 export const resetPassword = async (payload: {
   token: string;
   newPassword: string;

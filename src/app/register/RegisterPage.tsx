@@ -24,6 +24,8 @@ import { useRouter } from "next/navigation";
 //import { addMember } from "../../services/api";
 import { useError } from "@/app/Context/ErrorContext";
 import { addMember } from "../services/api";
+import ReCAPTCHA from "react-google-recaptcha"
+import { useRef } from "react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -32,6 +34,8 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -156,6 +160,10 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!captchaToken) {
+      setFormError({ field: "captcha", message: "Por favor completa el reCAPTCHA." })
+      return;
+    }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -195,13 +203,19 @@ export default function RegisterPage() {
         email: formData.email,
         password: formData.password,
       };
-      await addMember(memberData);
+      await addMember(memberData, captchaToken);
       // alert("Registro exitoso" + response.data);
       // console.log("Registro exitoso:", response.data);
+      // Después de registro exitoso
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
+
       setSubmitTrue(true);
       router.push("/login");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any  
     } catch (err: any) {
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
       const message = err?.response?.data?.message;
       console.error("Error en el registro:", message);
 
@@ -263,6 +277,8 @@ export default function RegisterPage() {
               {formError.message}
             </Alert>
           )}
+
+
           {submittrue && (
             <Alert severity="success" sx={{ mb: 3 }}>
               Registro exitoso. Ahora puedes iniciar sesión.
@@ -406,6 +422,13 @@ export default function RegisterPage() {
                 ),
 
               }}
+            />
+
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+              onChange={(token) => setCaptchaToken(token)}
+              theme="light"
             />
 
 
