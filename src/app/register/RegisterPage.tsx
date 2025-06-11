@@ -26,6 +26,7 @@ import { useError } from "@/app/Context/ErrorContext";
 import { addMember } from "../services/api";
 import ReCAPTCHA from "react-google-recaptcha"
 import { useRef } from "react";
+import { useSession } from "next-auth/react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function RegisterPage() {
   const [passwordStrength, setPasswordStrength] = useState(0)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const { status } = useSession(); 
 
   const [formData, setFormData] = useState({
     firstName: "",

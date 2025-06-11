@@ -17,7 +17,7 @@ import {
 import { Email, Lock, Visibility, VisibilityOff, VideoLibrary } from "@mui/icons-material"
 import { useState } from "react"
 
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 
 import { useRouter } from "next/navigation";
 
@@ -25,7 +25,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [identifier, setIdentifier] = useState("");
   const [submittrue, setSubmitTrue] = useState(false);
-
+  const { status } = useSession(); 
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();

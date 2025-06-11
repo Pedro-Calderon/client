@@ -14,7 +14,7 @@ import { Dialog } from "@mui/material"; // asegúrate de tener esto importado
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { setFormError, formError } = useError();
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);

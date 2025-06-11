@@ -23,7 +23,7 @@ import { Dialog } from "@mui/material"; // asegúrate de tener esto importado
 export default function FavoritesSection() {
     const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
     const userId = session?.user?.id
     const [favorites, setFavorites] = useState<FavoriteType[]>([])
     const [loading, setLoading] = useState(true)
