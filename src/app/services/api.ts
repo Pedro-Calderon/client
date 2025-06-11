@@ -32,7 +32,18 @@ export const sendPasswordResetEmail = async (email: string) =>
 export const validateResetToken = async (token: string) =>
   api.post("/members/validate-token", { token });
 
- 
+
+export const addFavorite = async (
+  payload:  Omit<Favorite, "_id" >
+)=> api.post<Favorite>("/favorite/add", payload);
+
+export const getFavorites = async(userId: string)=> {
+  const {data}= await api.get<Favorite>(`/favorite/${userId}`)
+  return data
+}
+
+export const deleteFavorite = async(userId: string,videoId: string)=>
+  api.delete<{ message: string }>(`/favorite/${userId}/${videoId}`);
 // -------------------------------------------------------------------------
 export default api;
 
@@ -48,4 +59,13 @@ export interface Member {
 export interface LoginPayload {
   email: string;
   password: string;
+}
+export interface Favorite{
+  _id?: string,
+   userId: string;
+    videoId: string;
+    title: string;
+    thumbnail: string;
+    channelTitle: string;
+    addedAt?: Date
 }

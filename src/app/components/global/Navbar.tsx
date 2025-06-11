@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import Link from 'next/link';
- import {
+import {
     AppBar,
     Toolbar,
     Typography,
@@ -20,15 +20,15 @@ import { useSession, signOut } from 'next-auth/react';
 import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function Navbar() {
-     
+
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-     const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
     const open = Boolean(anchorEl);
 
-    if (status === "loading") return null; 
+    if (status === "loading") return null;
     const user = session?.user;
 
-  
+
 
     const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -37,7 +37,7 @@ export default function Navbar() {
 
     const handleProfileClose = () => {
         setAnchorEl(null);
-        
+
     };
 
     const handleLogout = () => {
@@ -61,7 +61,10 @@ export default function Navbar() {
                     <>
                         {/* Navegación */}
                         <Box sx={{ display: { xs: "none", md: "flex" }, mr: 2 }}>
-                            <Button color="inherit" startIcon={<Favorite />}>
+                            <Button color="inherit"
+                                component={Link}
+                                href="/favoritos" 
+                                startIcon={<Favorite />}>
                                 Favoritos
                             </Button>
                         </Box>
