@@ -20,24 +20,15 @@ import { useSession, signOut } from 'next-auth/react';
 import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function Navbar() {
-    // const [searchQuery, setSearchQuery] = useState("")
-    //const [videos, setVideos] = useState(mockVideos)
+     
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
      const { data: session, status } = useSession();
     const open = Boolean(anchorEl);
 
-    if (status === "loading") return null; // Evita renderizado mientras se carga la sesión
+    if (status === "loading") return null;  
     const user = session?.user;
 
-  /*   const handleSearch = (event: React.FormEvent) => {
-        event.preventDefault()
-        // Aquí implementarías la búsqueda real con la API de YouTube
-        console.log("Buscando:", searchQuery)
-    } */
-
-    /*   const toggleFavorite = (videoId: string) => {
-        setVideos(videos.map((video) => (video.id === videoId ? { ...video, isFavorite: !video.isFavorite } : video)))
-      } */
+  
 
     const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
