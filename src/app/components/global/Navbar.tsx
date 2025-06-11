@@ -63,7 +63,7 @@ export default function Navbar() {
                         <Box sx={{ display: { xs: "none", md: "flex" }, mr: 2 }}>
                             <Button color="inherit"
                                 component={Link}
-                                href="/favoritos" 
+                                href="/favoritos"
                                 startIcon={<Favorite />}>
                                 Favoritos
                             </Button>
@@ -128,6 +128,19 @@ export default function Navbar() {
                                 <Typography variant="body2" sx={{ color: "#ccc" }}>
                                     {user?.email}
                                 </Typography>
+                            </Box>
+                            <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
+
+                            <Box sx={{ display: { xs: "block", md: "none" } }}>
+                                <MenuItem
+                                    component={Link}
+                                    href="/favoritos"
+                                    onClick={handleProfileClose}
+                                    sx={{ color: theme => theme.palette.primary.main }}
+                                >
+                                    <Favorite sx={{ mr: 1 }} fontSize="small" />
+                                    Favoritos
+                                </MenuItem>
                             </Box>
 
 
