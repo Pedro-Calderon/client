@@ -9,6 +9,7 @@
  ##  Funcionalidades
 
 - Registro y login de usuarios
+- Recuperacion de contraseñas
 - Autenticación con NextAuth
 - Búsqueda de videos vía YouTube Data API
 - Sección de favoritos persistente DB
