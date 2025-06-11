@@ -18,9 +18,11 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { Favorite as FavoriteType, getFavorites } from "@/app/services/api"
 import { deleteFavorite } from "@/app/services/api"
+import { Dialog } from "@mui/material"; // asegúrate de tener esto importado
 
 export default function FavoritesSection() {
-    
+    const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+
     const { data: session } = useSession()
     const userId = session?.user?.id
     const [favorites, setFavorites] = useState<FavoriteType[]>([])
@@ -65,7 +67,9 @@ export default function FavoritesSection() {
 
     useEffect(() => {
         const filteredResults = favorites.filter((video) =>
-            video.title.toLowerCase().includes(search.toLowerCase())
+            video.title.toLowerCase().includes(search.toLowerCase()) ||
+            video.channelTitle.toLowerCase().includes(search.toLowerCase())
+
         )
         setFiltered(filteredResults)
     }, [search, favorites])
@@ -130,10 +134,27 @@ export default function FavoritesSection() {
                     ) : filtered.length === 0 ? (
                         <Typography>No tienes videos guardados aún.</Typography>
                     ) : (
-                        <Grid container spacing={3}>
+                        <Grid container spacing={5} alignItems="stretch" justifyContent="center">
                             {filtered.map((video) => (
-                                <Grid  sx={{ gridColumn: { xs: "span 12", sm: "span 6", md: "span 4" } }} key={video.videoId}>
-                                    <Card sx={{ position: "relative" }}>
+                                <Grid sx={{ gridColumn: { xs: "span 12", sm: "span 6", md: "span 4" } }} key={video.videoId}>
+                                    <Card
+                                        onClick={() => setPlayingVideoId(video.videoId)}
+
+                                        sx={{
+                                            position: "relative", height: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            width: 300,
+                                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden',
+                                            cursor: 'pointer',
+                                            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                                            '&:hover': {
+                                                transform: 'translateY(-8px)',
+                                                boxShadow: '0 12px 24px rgba(0,0,0,0.25)',
+                                            },
+                                        }}>
                                         <IconButton
                                             onClick={() => handleRemoveFavorite(video.videoId)}
 
@@ -152,7 +173,7 @@ export default function FavoritesSection() {
                                             component="img"
                                             image={video.thumbnail}
                                             alt={video.title}
-                                            sx={{ height: 180, objectFit: "cover" }}
+                                            sx={{ height: 100, objectFit: "cover", width: 300 }}
                                         />
                                         <CardContent>
                                             <Typography variant="subtitle1" fontWeight={600} gutterBottom>
@@ -169,6 +190,27 @@ export default function FavoritesSection() {
                     )}
                 </Container>
             </Box>
+            <Dialog open={!!playingVideoId} onClose={() => setPlayingVideoId(null)} maxWidth="md" fullWidth>
+                <Box sx={{ position: "relative", paddingTop: "56.25%" /* 16:9 ratio */ }}>
+                    {playingVideoId && (
+                        <iframe
+                            src={`https://www.youtube.com/embed/${playingVideoId}`}
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                            }}
+                        />
+                    )}
+                </Box>
+            </Dialog>
+
         </>
     )
 }
