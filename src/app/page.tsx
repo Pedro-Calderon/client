@@ -18,9 +18,12 @@ export default function Home() {
   const { setFormError, formError } = useError();
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [videos, setVideos] = useState<Video[]>([])
 
   const user = session?.user;
-
+  if (status === "loading") {
+    return <div>Cargando...</div>;
+  }
   type Video = {
     id: { videoId: string };
     snippet: {
@@ -32,7 +35,6 @@ export default function Home() {
     };
   };
 
-  const [videos, setVideos] = useState<Video[]>([])
 
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -239,48 +241,50 @@ export default function Home() {
                   },
                 }}>
                 <IconButton
-                  onClick={() => handleFavorite(video)}
-                  sx={{
-                    position: "absolute",
-                    top: 8,
-                    right: 8,
-                    bgcolor: "rgba(71, 18, 18, 0.8)",
-                    zIndex: 1,
-                  }}
+                  onClick={(e) =>{
+                    e.stopPropagation();
+                    handleFavorite(video)}}
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  bgcolor: "rgba(71, 18, 18, 0.8)",
+                  zIndex: 1,
+                }}
 
                 >
-                  <FavoriteBorder color="error" />
-                </IconButton>
-                <CardMedia
-                  component="img"
-                  image={video.snippet.thumbnails.medium.url}
-                  alt={video.snippet.title}
-                  sx={{
-                    height: 180,
-                    width: 300,
-                    objectFit: "cover",
-                  }}
-                />
-                <CardContent>
-                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                    {video.snippet.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {video.snippet.channelTitle}
-                  </Typography>
-                </CardContent>
-              </Card>
+                <FavoriteBorder color="error" />
+              </IconButton>
+              <CardMedia
+                component="img"
+                image={video.snippet.thumbnails.medium.url}
+                alt={video.snippet.title}
+                sx={{
+                  height: 180,
+                  width: 300,
+                  objectFit: "cover",
+                }}
+              />
+              <CardContent>
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                  {video.snippet.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {video.snippet.channelTitle}
+                </Typography>
+              </CardContent>
+            </Card>
             </Grid>
           ))}
-        </Grid>
-      </Box>
+      </Grid>
+    </Box >
 
       <Dialog open={!!playingVideoId} onClose={() => setPlayingVideoId(null)} maxWidth="md" fullWidth>
         <Box sx={{ position: "relative", paddingTop: "56.25%" /* 16:9 ratio */ }}>
           {playingVideoId && (
             <iframe
               src={`https://www.youtube.com/embed/${playingVideoId}`}
-               
+
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

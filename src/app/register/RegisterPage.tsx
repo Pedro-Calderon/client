@@ -234,7 +234,9 @@ export default function RegisterPage() {
 
     }
   };
-
+ if (status === "loading") {
+        return <div>Cargando...</div>;
+    }
   return (
     <Box
       sx={{

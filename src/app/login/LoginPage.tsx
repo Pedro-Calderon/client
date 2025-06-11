@@ -80,7 +80,9 @@ export default function LoginPage() {
       setError("Error interno. Intenta más tarde.");
     }
   }
-
+ if (status === "loading") {
+        return <div>Cargando...</div>;
+    }
 
   return (
     <Box

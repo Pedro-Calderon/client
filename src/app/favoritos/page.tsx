@@ -48,6 +48,7 @@ export default function FavoritesSection() {
 
         fetchFavorites()
     }, [userId])
+
     const handleRemoveFavorite = async (videoId: string) => {
 
 
@@ -73,7 +74,9 @@ export default function FavoritesSection() {
         )
         setFiltered(filteredResults)
     }, [search, favorites])
-
+    if (status === "loading") {
+        return <div>Cargando...</div>;
+    }
     return (
         <>
             {formSuccess && (
@@ -156,7 +159,9 @@ export default function FavoritesSection() {
                                             },
                                         }}>
                                         <IconButton
-                                            onClick={() => handleRemoveFavorite(video.videoId)}
+                                            onClick={(e) =>{
+                                                 e.stopPropagation()
+                                                handleRemoveFavorite(video.videoId)}}
 
                                             sx={{
                                                 position: "absolute",

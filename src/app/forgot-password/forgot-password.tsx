@@ -53,7 +53,9 @@ export default function ForgotPasswordPage() {
       }
     }
   }
-
+ if (status === "loading") {
+        return <div>Cargando...</div>;
+    }
   return (
     <Box
       sx={{
