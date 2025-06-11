@@ -12,10 +12,9 @@ import {
   InputAdornment,
   IconButton,
   Divider,
-  Stack,
-  Alert,
+   Alert,
 } from "@mui/material"
-import { Email, Lock, Visibility, VisibilityOff, VideoLibrary, Google } from "@mui/icons-material"
+import { Email, Lock, Visibility, VisibilityOff, VideoLibrary } from "@mui/icons-material"
 import { useState } from "react"
 
 import { signIn } from "next-auth/react"
@@ -191,28 +190,14 @@ export default function LoginPage() {
 
           {/* Divider */}
           <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              O continúa con
-            </Typography>
+             
           </Divider>
 
-          {/* Botones de redes sociales */}
-          <Stack spacing={2} sx={{ mb: 3 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<Google />}
-
-              sx={{ py: 1.5 }}
-            >
-              Continuar con Google
-            </Button>
-
-          </Stack>
+          
 
           {/* Enlaces */}
           <Box sx={{ textAlign: "center" }}>
-            <Link href="#" variant="body2" sx={{ display: "block", mb: 2, textDecoration: "none" }}>
+            <Link  href="/forgot-password" variant="body2" sx={{ display: "block", mb: 2, textDecoration: "none" }}>
               ¿Olvidaste tu contraseña?
             </Link>
             <Typography variant="body2" color="text.secondary">
